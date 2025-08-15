@@ -11,6 +11,8 @@ I’ll be happy if others also find this tool as useful as I do.
 * SSMS 21
 
 # Main Features
+**Hotkeys and other parameters are specified by default.**
+
 * Code regions support: Automatically folds regions in the editor based on --#region and --#endregion comments when a window is opened.
 
   <img width="200" height="40" alt="image" src="https://github.com/user-attachments/assets/ea1ae008-70ec-4085-aacc-a4c4c6f960ac" />
@@ -42,6 +44,12 @@ You have two options:
   * SSMS 21: C:\Program Files\Microsoft SQL Server Management Studio 21\Release\Common7\IDE\Extensions
 
 Restart SSMS after placing the files in the extension directory.
+
+# Options
+Options page at **Tools - Options - SSMSMint**
+
+<img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/3e65e53a-3006-4890-ad5a-41145c725edf" />
+
 
 # Contributing
 I will be glad to hear your ideas and suggestions. Also, if you encounter any errors, please send them to this repository.
