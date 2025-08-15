@@ -1,8 +1,9 @@
 ﻿using EnvDTE;
-using SSMSMint.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Shell;
 using NLog;
+using SSMSMint.Shared.Services;
+using SSMSMint.Shared.Settings;
 using System;
 using Task = System.Threading.Tasks.Task;
 
@@ -10,8 +11,11 @@ namespace SSMSMint.Regions
 {
     public static class AsyncPackageExtention
     {
+        private static AsyncPackage _package;
+
         public static async Task InitializeRegions(this AsyncPackage package)
         {
+            _package = package;
             var logger = LogManager.GetCurrentClassLogger();
             var winEvents = ServicesLocator.ServiceProvider.GetRequiredService<WindowEvents>();
 
@@ -32,8 +36,9 @@ namespace SSMSMint.Regions
             try
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
+                var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
                 var textDocument = (TextDocument)Window.Document.Object("TextDocument");
-                textDocument.CreateCustomRegions();
+                textDocument.CreateCustomRegions(settings);
             }
             catch (Exception ex)
             {
