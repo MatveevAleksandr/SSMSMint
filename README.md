@@ -35,6 +35,11 @@ The context menu
 
   <img width="300" height="60" alt="image" src="https://github.com/user-attachments/assets/9d12f431-2799-485e-8388-c56caaf32720" />
 
+# Options
+Options page at **Tools - Options - SSMSMint**
+
+<img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/3e65e53a-3006-4890-ad5a-41145c725edf" />
+
 # Installation
 You have two options:
 1. The build process will automatically copy all necessary files into the SSMS extension folder.
@@ -44,12 +49,6 @@ You have two options:
   * SSMS 21: C:\Program Files\Microsoft SQL Server Management Studio 21\Release\Common7\IDE\Extensions
 
 Restart SSMS after placing the files in the extension directory.
-
-# Options
-Options page at **Tools - Options - SSMSMint**
-
-<img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/3e65e53a-3006-4890-ad5a-41145c725edf" />
-
 
 # Contributing
 I will be glad to hear your ideas and suggestions. Also, if you encounter any errors, please send them to this repository.
