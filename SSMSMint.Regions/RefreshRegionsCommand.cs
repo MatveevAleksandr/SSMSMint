@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using NLog;
+using SSMSMint.Shared.Settings;
 using System;
 using System.ComponentModel.Design;
 using Task = System.Threading.Tasks.Task;
@@ -38,8 +39,23 @@ namespace SSMSMint.Regions
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(Execute, menuCommandID);
+            var menuItem = new OleMenuCommand(Execute, menuCommandID);
+
+            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
             commandService.AddCommand(menuItem);
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            try
+            {
+                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+                ((OleMenuCommand)sender).Enabled = settings?.RegionsEnabled ?? false;
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetCurrentClassLogger().Error(ex);
+            }
         }
 
         /// <summary>
@@ -88,9 +104,10 @@ namespace SSMSMint.Regions
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
+                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
                 var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
                 var textDocument = (TextDocument)dte.ActiveDocument.Object("TextDocument");
-                textDocument.CreateCustomRegions();
+                textDocument.CreateCustomRegions(settings);
             }
             catch (Exception ex)
             {

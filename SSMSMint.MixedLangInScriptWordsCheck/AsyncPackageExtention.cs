@@ -1,9 +1,10 @@
 ﻿using EnvDTE;
-using SSMSMint.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using NLog;
+using SSMSMint.Shared.Services;
+using SSMSMint.Shared.Settings;
 using System;
 using System.Text.RegularExpressions;
 
@@ -32,6 +33,12 @@ namespace SSMSMint.MixedLangInScriptWordsCheck
             var logger = LogManager.GetCurrentClassLogger();
             try
             {
+                var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+                if (!settings.MixedLangInScriptWordsCheckEnabled)
+                {
+                    return;
+                }
+
                 var vsTextView = VsShellUtilities.IsDocumentOpen(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider, document.FullName, Guid.Empty, out _, out _, out IVsWindowFrame windowFrame)
                     ? VsShellUtilities.GetTextView(windowFrame)
                     : null;

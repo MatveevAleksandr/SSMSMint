@@ -1,14 +1,15 @@
-﻿using SSMSMint.LocateInObjectExplorer;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using NLog;
+using SSMSMint.LocateInObjectExplorer;
 using SSMSMint.MixedLangInScriptWordsCheck;
 using SSMSMint.Regions;
 using SSMSMint.ResultsGridSearch;
 using SSMSMint.ScriptSqlObject;
 using SSMSMint.Shared.Extentions;
 using SSMSMint.Shared.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using NLog;
+using SSMSMint.Shared.Settings;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -21,6 +22,7 @@ namespace SSMSMint.VSIX
     // Говорим, что пакет должен быть загружен при старте. Дефолтное поведение - не грузим пока не понадобится как действие с UI (Например ждет нажатия кнопки)
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideOptionPage(typeof(SSMSMintSettings), "SSMSMint", "General", 0, 0, true)]
     [ProvideToolWindow(typeof(ResultsGridSearchToolWindow), Transient = true, MultiInstances = false)]
     public sealed class SSMSMintPackage : AsyncPackage
     {

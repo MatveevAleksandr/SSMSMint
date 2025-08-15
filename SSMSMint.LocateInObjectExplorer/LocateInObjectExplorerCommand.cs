@@ -1,8 +1,5 @@
 ﻿using EnvDTE;
 using EnvDTE80;
-using SSMSMint.Shared.Extentions;
-using SSMSMint.Shared.Services;
-using SSMSMint.Shared.SqlObjAtPosition;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SqlServer.Management.UI.VSIntegration;
 using Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer;
@@ -10,6 +7,10 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using NLog;
+using SSMSMint.Shared.Extentions;
+using SSMSMint.Shared.Services;
+using SSMSMint.Shared.Settings;
+using SSMSMint.Shared.SqlObjAtPosition;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -53,8 +54,23 @@ namespace SSMSMint.LocateInObjectExplorer
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(Execute, menuCommandID);
+            var menuItem = new OleMenuCommand(Execute, menuCommandID);
+
+            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
             commandService.AddCommand(menuItem);
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            try
+            {
+                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+                ((OleMenuCommand)sender).Enabled = settings?.LocateInObjectExplorerEnabled ?? false;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         /// <summary>

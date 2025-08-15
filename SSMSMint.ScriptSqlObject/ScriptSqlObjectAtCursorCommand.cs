@@ -1,9 +1,5 @@
 ﻿using EnvDTE;
 using EnvDTE80;
-using SSMSMint.Regions;
-using SSMSMint.Shared.Extentions;
-using SSMSMint.Shared.Services;
-using SSMSMint.Shared.SqlObjAtPosition;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SqlServer.Management.UI.VSIntegration;
 using Microsoft.SqlServer.Management.UI.VSIntegration.Editors;
@@ -11,6 +7,11 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using NLog;
+using SSMSMint.Regions;
+using SSMSMint.Shared.Extentions;
+using SSMSMint.Shared.Services;
+using SSMSMint.Shared.Settings;
+using SSMSMint.Shared.SqlObjAtPosition;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -51,8 +52,23 @@ namespace SSMSMint.ScriptSqlObject
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(Execute, menuCommandID);
+            var menuItem = new OleMenuCommand(Execute, menuCommandID);
+
+            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
             commandService.AddCommand(menuItem);
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            try
+            {
+                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+                ((OleMenuCommand)sender).Enabled = settings?.ScriptSqlObjectEnabled ?? false;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         /// <summary>
@@ -101,6 +117,7 @@ namespace SSMSMint.ScriptSqlObject
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
+                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
                 var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
                 var frameService = ServicesLocator.ServiceProvider.GetRequiredService<FrameService>();
                 var editor = frameService.GetSqlScriptEditorControl() ?? throw new Exception("SqlScriptEditorControl not found");
@@ -135,7 +152,7 @@ namespace SSMSMint.ScriptSqlObject
                 ServiceCache.ScriptFactory.CreateNewBlankScript(ScriptType.Sql, connInfo, null);
                 var newDoc = (TextDocument)dte.ActiveDocument.Object("TextDocument");
                 newDoc.Selection?.Insert(sqlScript);
-                newDoc.CreateCustomRegions();
+                newDoc.CreateCustomRegions(settings);
                 newDoc.Selection?.StartOfDocument();
             }
             catch (Exception ex)
