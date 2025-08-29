@@ -1,6 +1,5 @@
 ﻿using EnvDTE;
 using EnvDTE80;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SqlServer.Management.UI.VSIntegration;
 using Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
@@ -17,166 +16,164 @@ using System.ComponentModel.Design;
 using System.Linq;
 using Task = System.Threading.Tasks.Task;
 
-namespace SSMSMint.LocateInObjectExplorer
+namespace SSMSMint.LocateInObjectExplorer;
+
+/// <summary>
+/// Command handler
+/// </summary>
+public sealed class LocateInObjectExplorerCommand
 {
     /// <summary>
-    /// Command handler
+    /// Command ID.
     /// </summary>
-    public sealed class LocateInObjectExplorerCommand
+    public const int CommandId = 0x101;
+
+    /// <summary>
+    /// Command menu group (command set GUID).
+    /// </summary>
+    public static readonly Guid CommandSet = new Guid("E9307D44-1C11-44C0-937E-A66F19EA3B26");
+
+    /// <summary>
+    /// VS Package that provides this command, not null.
+    /// </summary>
+    private readonly AsyncPackage package;
+
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private readonly string _commandTitle = "Locating in object explorer";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LocateInObjectExplorerCommand"/> class.
+    /// Adds our command handlers for menu (commands must exist in the command table file)
+    /// </summary>
+    /// <param name="package">Owner package, not null.</param>
+    /// <param name="commandService">Command service to add command to, not null.</param>
+    private LocateInObjectExplorerCommand(AsyncPackage package, OleMenuCommandService commandService)
     {
-        /// <summary>
-        /// Command ID.
-        /// </summary>
-        public const int CommandId = 0x101;
+        this.package = package ?? throw new ArgumentNullException(nameof(package));
+        commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
-        /// <summary>
-        /// Command menu group (command set GUID).
-        /// </summary>
-        public static readonly Guid CommandSet = new Guid("E9307D44-1C11-44C0-937E-A66F19EA3B26");
+        var menuCommandID = new CommandID(CommandSet, CommandId);
+        var menuItem = new OleMenuCommand(Execute, menuCommandID);
 
-        /// <summary>
-        /// VS Package that provides this command, not null.
-        /// </summary>
-        private readonly AsyncPackage package;
+        menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
+        commandService.AddCommand(menuItem);
+    }
 
-        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly string _commandTitle = "Locating in object explorer";
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocateInObjectExplorerCommand"/> class.
-        /// Adds our command handlers for menu (commands must exist in the command table file)
-        /// </summary>
-        /// <param name="package">Owner package, not null.</param>
-        /// <param name="commandService">Command service to add command to, not null.</param>
-        private LocateInObjectExplorerCommand(AsyncPackage package, OleMenuCommandService commandService)
+    private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+    {
+        try
         {
-            this.package = package ?? throw new ArgumentNullException(nameof(package));
-            commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-
-            var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new OleMenuCommand(Execute, menuCommandID);
-
-            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
-            commandService.AddCommand(menuItem);
+            var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+            ((OleMenuCommand)sender).Enabled = settings?.LocateInObjectExplorerEnabled ?? false;
         }
-
-        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        catch (Exception ex)
         {
-            try
+            _logger.Error(ex);
+        }
+    }
+
+    /// <summary>
+    /// Gets the instance of the command.
+    /// </summary>
+    public static LocateInObjectExplorerCommand Instance
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Gets the service provider from the owner package.
+    /// </summary>
+    //private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
+    //{
+    //    get
+    //    {
+    //        return this.package;
+    //    }
+    //}
+
+    /// <summary>
+    /// Initializes the singleton instance of the command.
+    /// </summary>
+    /// <param name="package">Owner package, not null.</param>
+    public static async Task InitializeAsync(AsyncPackage package)
+    {
+        // Switch to the main thread - the call to AddCommand in LocateInObjectExplorerCommand's constructor requires
+        // the UI thread.
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+
+        OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+        Instance = new LocateInObjectExplorerCommand(package, commandService);
+    }
+
+    /// <summary>
+    /// This function is the callback used to execute the command when the menu item is clicked.
+    /// See the constructor to see how the menu item is associated with this function using
+    /// OleMenuCommandService service and MenuCommand class.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event args.</param>
+    private async void Execute(object sender, EventArgs e)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+        try
+        {
+            var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
+            IObjectExplorerService oeService = (IObjectExplorerService)await package.GetServiceAsync(typeof(IObjectExplorerService));
+            var editor = FrameService.GetSqlScriptEditorControl() ?? throw new Exception("SqlScriptEditorControl not found");
+            var treeView = oeService.GetTreeView() ?? throw new Exception("Object explorer property Tree not found");
+            var ts = (TextSelection)dte.ActiveDocument.Selection;
+
+            editor.GetSqlObjectAtPosition(ts.CurrentLine, ts.CurrentColumn, out IList<ParseError> parseErrors, out SqlObject sqlObjLocate);
+
+            if (parseErrors.Count > 0)
             {
-                var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
-                ((OleMenuCommand)sender).Enabled = settings?.LocateInObjectExplorerEnabled ?? false;
+                _logger.Warn("Errors while parsing SQL script:\n" +
+                        string.Join("\n", parseErrors.Select(e => $"[{e.Line},{e.Column}]: {e.Message}")));
             }
-            catch (Exception ex)
+
+            if (sqlObjLocate == null)
             {
-                _logger.Error(ex);
+                ShowWarning("SQL Object to locate is not defined");
+                return;
             }
-        }
 
-        /// <summary>
-        /// Gets the instance of the command.
-        /// </summary>
-        public static LocateInObjectExplorerCommand Instance
-        {
-            get;
-            private set;
-        }
+            _logger.Info($"SQL obj params: Type - {sqlObjLocate.GetType()}; {sqlObjLocate.GetParamsString()}");
 
-        /// <summary>
-        /// Gets the service provider from the owner package.
-        /// </summary>
-        //private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
-        //{
-        //    get
-        //    {
-        //        return this.package;
-        //    }
-        //}
+            var connInfo = ServiceCache.ScriptFactory.CurrentlyActiveWndConnectionInfo.UIConnectionInfo;
+            connInfo.ServerName = sqlObjLocate.ContextServerName;
 
-        /// <summary>
-        /// Initializes the singleton instance of the command.
-        /// </summary>
-        /// <param name="package">Owner package, not null.</param>
-        public static async Task InitializeAsync(AsyncPackage package)
-        {
-            // Switch to the main thread - the call to AddCommand in LocateInObjectExplorerCommand's constructor requires
-            // the UI thread.
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+            oeService.ConnectToServer(connInfo);
 
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            Instance = new LocateInObjectExplorerCommand(package, commandService);
-        }
+            var located = await LocateProcessor.TryLocateAsync(treeView, sqlObjLocate);
 
-        /// <summary>
-        /// This function is the callback used to execute the command when the menu item is clicked.
-        /// See the constructor to see how the menu item is associated with this function using
-        /// OleMenuCommandService service and MenuCommand class.
-        /// </summary>
-        /// <param name="sender">Event sender.</param>
-        /// <param name="e">Event args.</param>
-        private async void Execute(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
+            if (!located)
             {
-                var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
-                IObjectExplorerService oeService = (IObjectExplorerService)await package.GetServiceAsync(typeof(IObjectExplorerService));
-                var frameService = ServicesLocator.ServiceProvider.GetRequiredService<FrameService>();
-                var editor = frameService.GetSqlScriptEditorControl() ?? throw new Exception("SqlScriptEditorControl not found");
-                var treeView = oeService.GetTreeView() ?? throw new Exception("Object explorer property Tree not found");
-                var ts = (TextSelection)dte.ActiveDocument.Selection;
-
-                editor.GetSqlObjectAtPosition(ts.CurrentLine, ts.CurrentColumn, out IList<ParseError> parseErrors, out SqlObject sqlObjLocate);
-
-                if (parseErrors.Count > 0)
-                {
-                    _logger.Warn("Errors while parsing SQL script:\n" +
-                            string.Join("\n", parseErrors.Select(e => $"[{e.Line},{e.Column}]: {e.Message}")));
-                }
-
-                if (sqlObjLocate == null)
-                {
-                    ShowWarning("SQL Object to locate is not defined");
-                    return;
-                }
-
-                _logger.Info($"SQL obj params: Type - {sqlObjLocate.GetType()}; {sqlObjLocate.GetParamsString()}");
-
-                var connInfo = ServiceCache.ScriptFactory.CurrentlyActiveWndConnectionInfo.UIConnectionInfo;
-                connInfo.ServerName = sqlObjLocate.ContextServerName;
-
-                oeService.ConnectToServer(connInfo);
-
-                var located = await LocateProcessor.TryLocateAsync(treeView, sqlObjLocate);
-
-                if (!located)
-                {
-                    ShowWarning($"SQL object '{sqlObjLocate.ObjName}' not found");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-
-                VsShellUtilities.ShowMessageBox(
-                    package,
-                    ex.Message,
-                    _commandTitle,
-                    OLEMSGICON.OLEMSGICON_CRITICAL,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                ShowWarning($"SQL object '{sqlObjLocate.ObjName}' not found");
             }
         }
-
-        private void ShowWarning(string body)
+        catch (Exception ex)
         {
+            _logger.Error(ex);
+
             VsShellUtilities.ShowMessageBox(
-                            this.package,
-                            body,
-                            _commandTitle,
-                            OLEMSGICON.OLEMSGICON_WARNING,
-                            OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                            OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                package,
+                ex.Message,
+                _commandTitle,
+                OLEMSGICON.OLEMSGICON_CRITICAL,
+                OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
+    }
+
+    private void ShowWarning(string body)
+    {
+        VsShellUtilities.ShowMessageBox(
+                        this.package,
+                        body,
+                        _commandTitle,
+                        OLEMSGICON.OLEMSGICON_WARNING,
+                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
     }
 }

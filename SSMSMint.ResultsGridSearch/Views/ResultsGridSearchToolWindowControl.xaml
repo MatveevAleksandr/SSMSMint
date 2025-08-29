@@ -1,22 +1,22 @@
-﻿<UserControl x:Class="SSMSMint.ResultsGridSearch.ResultsGridSearchToolWindowControl"
+﻿<UserControl x:Class="SSMSMint.ResultsGridSearch.Views.ResultsGridSearchToolWindowControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SSMSMint.ResultsGridSearch" d:DataContext="{d:DesignInstance Type=local:ResultsGridSearchToolWindowViewModel}"
+             xmlns:local="clr-namespace:SSMSMint.ResultsGridSearch.Views" 
+             xmlns:viewmodels="clr-namespace:SSMSMint.ResultsGridSearch.ViewModels" 
+             xmlns:converters="clr-namespace:SSMSMint.ResultsGridSearch.Converters" 
+             xmlns:models="clr-namespace:SSMSMint.ResultsGridSearch.Models" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:ResultsGridSearchToolWindowViewModel}"
              Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
              Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Name="ResultsGridSearchToolWindow">
     <UserControl.Resources>
-        <local:GridLookInToBooleanConverter x:Key="GridLookInToBooleanConverter"/>
+        <converters:GridLookInToBooleanConverter x:Key="GridLookInToBooleanConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <Style x:Key="LightGridLinesStyle" TargetType="DataGridCell">
-            <Setter Property="BorderThickness" Value="0.2" />
-            <Setter Property="BorderBrush" Value="LightGray" />
-        </Style>
     </UserControl.Resources>
 
     <Grid Margin="15">
@@ -50,54 +50,48 @@
                              Content="Current Grid" 
                              VerticalContentAlignment="Center" 
                              Margin="10,5"
-                             IsChecked="{Binding GridLookIn, Converter={StaticResource GridLookInToBooleanConverter}, ConverterParameter={x:Static local:GridLookIn.CurrentGrid}}"/>
+                             IsChecked="{Binding GridLookIn, Converter={StaticResource GridLookInToBooleanConverter}, ConverterParameter={x:Static models:GridLookIn.CurrentGrid}}"/>
                 <RadioButton GroupName="LookInGrid" 
                              Content="All Grids" 
                              VerticalContentAlignment="Center" 
                              Margin="10,5"
-                             IsChecked="{Binding GridLookIn, Converter={StaticResource GridLookInToBooleanConverter}, ConverterParameter={x:Static local:GridLookIn.AllGrids}}"/>
+                             IsChecked="{Binding GridLookIn, Converter={StaticResource GridLookInToBooleanConverter}, ConverterParameter={x:Static models:GridLookIn.AllGrids}}"/>
             </StackPanel>
             <Separator Height="10"/>
         </StackPanel>
 
         <!-- Results List -->
-        <DataGrid
+        <ListView 
             Grid.Row="3" 
-            ItemsSource="{Binding FindAllSearchResults}"
-            CellStyle="{StaticResource LightGridLinesStyle}"
-            GridLinesVisibility="None"
+            ItemsSource="{Binding FindAllSearchResults.GridCells}"
             Margin="0,10,0,0"
-            AutoGenerateColumns="False"
-            IsReadOnly="True"
-            MouseDoubleClick="FindAllSearchResultsDoubleClick"
-            Visibility="{Binding HasFindAllSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Grid" Width="Auto" Binding="{Binding DisplayGridNumber}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                            <Setter Property="TextAlignment" Value="Center"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Row" Width="Auto" Binding="{Binding DisplayRowNumber}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                            <Setter Property="TextAlignment" Value="Center"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Column" Width="Auto" Binding="{Binding DisplayColHeader}"/>
-                <DataGridTextColumn Header="Data" Width="*" Binding="{Binding CellData}"/>
-            </DataGrid.Columns>
-        </DataGrid>
+            Visibility="{Binding HasFindAllSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}"
+            MouseDoubleClick="FindAllSearchResultsDoubleClick">
+            <ListView.Resources>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.Resources>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:SearchResultItemControl 
+                        GridIndex="{Binding GridIndex}"
+                        RowIndex="{Binding RowIndex}"
+                        ColHeader="{Binding ColHeader}"
+                        CellData="{Binding Data}"
+                        HighlightText="{Binding DataContext.FindAllSearchResults.SearchText, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+                        MatchCase="{Binding DataContext.FindAllSearchResults.MatchCase, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
-        <Label Grid.Row="4" 
-               Content="{Binding FindAllSearchResultsCountText}" 
-               Visibility="{Binding HasFindAllSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <TextBlock Grid.Row="4" 
+               Visibility="{Binding HasFindAllSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Run Text="Found: "/>
+            <Run Text="{Binding FindAllSearchResultsCount, Mode=OneWay}"/>
+        </TextBlock>
         <Separator Grid.Row="5" Height="10"/>
-        
+
         <!-- Buttons -->
         <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
             <Button Content="Find Prev" Width="80" Margin="0,0,10,0" Command="{Binding FindPrevCommand}"/>

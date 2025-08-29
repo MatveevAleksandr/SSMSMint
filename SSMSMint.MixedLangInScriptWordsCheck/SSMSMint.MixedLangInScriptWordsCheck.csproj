@@ -1,13 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
 		<LangVersion>12</LangVersion>
+		<UseWPF>true</UseWPF>
 		<Configurations>SSMS19_Debug;SSMS19_Release;SSMS20_Debug;SSMS20_Release;SSMS21_Debug;SSMS21_Release</Configurations>
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SSMSMint.Shared\SSMSMint.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SSMSMint.Shared\SSMSMint.Shared.csproj" />
+	</ItemGroup>
 
 </Project>

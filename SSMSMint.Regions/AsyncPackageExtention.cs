@@ -1,50 +1,46 @@
 ﻿using EnvDTE;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Shell;
 using NLog;
-using SSMSMint.Shared.Services;
 using SSMSMint.Shared.Settings;
 using System;
 using Task = System.Threading.Tasks.Task;
 
-namespace SSMSMint.Regions
+namespace SSMSMint.Regions;
+
+public static class AsyncPackageExtention
 {
-    public static class AsyncPackageExtention
+    private static AsyncPackage _package;
+
+    public static async Task InitializeRegions(this AsyncPackage package, WindowEvents winEvents)
     {
-        private static AsyncPackage _package;
+        _package = package;
+        var logger = LogManager.GetCurrentClassLogger();
 
-        public static async Task InitializeRegions(this AsyncPackage package)
+        await RefreshRegionsCommand.InitializeAsync(package);
+
+        if (winEvents == null)
         {
-            _package = package;
-            var logger = LogManager.GetCurrentClassLogger();
-            var winEvents = ServicesLocator.ServiceProvider.GetRequiredService<WindowEvents>();
-
-            await RefreshRegionsCommand.InitializeAsync(package);
-
-            if (winEvents == null)
-            {
-                logger.Info($"{nameof(InitializeRegions)} not Initialized. Registered window events not found");
-                return;
-            }
-            winEvents.WindowCreated += WinEvents_WindowCreated;
-
-            logger.Info($"{nameof(InitializeRegions)} Initialized");
+            logger.Info($"{nameof(InitializeRegions)} not Initialized. Registered window events not found");
+            return;
         }
+        winEvents.WindowCreated += WinEvents_WindowCreated;
 
-        private static void WinEvents_WindowCreated(Window Window)
+        logger.Info($"{nameof(InitializeRegions)} Initialized");
+    }
+
+    private static void WinEvents_WindowCreated(Window Window)
+    {
+        try
         {
-            try
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
-                var textDocument = (TextDocument)Window.Document.Object("TextDocument");
-                textDocument.CreateCustomRegions(settings);
-            }
-            catch (Exception ex)
-            {
-                LogManager.GetCurrentClassLogger().Error(ex);
-                throw;
-            }
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+            var textDocument = (TextDocument)Window.Document.Object("TextDocument");
+            textDocument.CreateCustomRegions(settings);
+        }
+        catch (Exception ex)
+        {
+            LogManager.GetCurrentClassLogger().Error(ex);
+            throw;
         }
     }
 }

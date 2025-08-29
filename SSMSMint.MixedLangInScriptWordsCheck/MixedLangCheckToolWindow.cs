@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.Shell;
-using SSMSMint.ResultsGridSearch.Views;
+using SSMSMint.MixedLangInScriptWordsCheck.Views;
 using System;
 using System.Runtime.InteropServices;
 
-namespace SSMSMint.ResultsGridSearch;
+namespace SSMSMint.MixedLangInScriptWordsCheck;
 
 /// <summary>
 /// This class implements the tool window exposed by this package and hosts a user control.
@@ -16,19 +16,19 @@ namespace SSMSMint.ResultsGridSearch;
 /// implementation of the IVsUIElementPane interface.
 /// </para>
 /// </remarks>
-[Guid("a3af6d1c-ecf4-4874-a7f7-fafad20fe0db")]
-public class ResultsGridSearchToolWindow : ToolWindowPane
+[Guid("5A979A59-3421-40EC-B1E0-6A28874A0C8D")]
+public class MixedLangCheckToolWindow : ToolWindowPane
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ResultsGridSearchToolWindow"/> class.
+    /// Initializes a new instance of the <see cref="MixedLangCheckToolWindow"/> class.
     /// </summary>
-    public ResultsGridSearchToolWindow() : base(null)
+    public MixedLangCheckToolWindow() : base(null)
     {
-        this.Caption = "Search in Results Grid";
+        this.Caption = "Words with mixed language";
 
         // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
         // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
         // the object returned by the Content property.
-        this.Content = new ResultsGridSearchToolWindowControl();
+        this.Content = new MixedLangCheckToolWindowControl();
     }
 }

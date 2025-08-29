@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
 		<UseWPF>true</UseWPF>
+		<LangVersion>12</LangVersion>
 		<Configurations>SSMS19_Debug;SSMS19_Release;SSMS20_Debug;SSMS20_Release;SSMS21_Debug;SSMS21_Release</Configurations>
 	</PropertyGroup>
 
