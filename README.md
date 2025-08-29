@@ -25,11 +25,11 @@ I’ll be happy if others also find this tool as useful as I do.
 
 * Result grid search: Search across all result grids using Ctrl+Alt+F or from the main menu.
 
-  <img width="350" height="350" alt="image" src="https://github.com/user-attachments/assets/5d2952ad-13e0-4b07-ae50-e02e51ead192" />
+  <img width="350" height="350" alt="image" src="https://github.com/user-attachments/assets/fb17d480-0b6a-4bc3-ada0-3be5781289c3" />
 
 * Mixed language typo check: Detect adjacent Cyrillic and Latin characters when saving a document.
 
-  <img width="300" height="200" alt="image" src="https://github.com/user-attachments/assets/254747aa-72e7-4842-855d-3e835f5f6af5" />
+  <img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/29a06b60-6ed0-47c1-a485-446f950297a7" />
 
 The context menu
 
