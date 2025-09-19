@@ -31,6 +31,22 @@ I’ll be happy if others also find this tool as useful as I do.
 
   <img width="280" height="450" alt="image" src="https://github.com/user-attachments/assets/29a06b60-6ed0-47c1-a485-446f950297a7" />
 
+* A text marker indicating that a variable has been declared but not used.
+
+  <img width="350" height="300" alt="image" src="https://github.com/user-attachments/assets/cd48ed9e-0a16-44bd-a492-0b995aea83a3" />
+
+* A text marker indicating that a variable is being used but not declared.
+
+  <img width="350" height="300" alt="image" src="https://github.com/user-attachments/assets/423576dc-a470-45ba-905d-e91691660011" />
+
+* Ability to view cell contents as formatted JSON in a new window.
+
+  <img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/46a719ac-ede3-4168-b782-9e78b65e8be2" />
+
+
+
+
+
 The context menu
 
   <img width="300" height="60" alt="image" src="https://github.com/user-attachments/assets/9d12f431-2799-485e-8388-c56caaf32720" />
