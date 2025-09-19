@@ -14,27 +14,25 @@ namespace SSMSMint.MixedLangInScriptWordsCheck;
 
 public static class AsyncPackageExtention
 {
-    private static AsyncPackage _package;
 
     public static void InitializeMixedLangInScriptWordsCheck(this AsyncPackage package, DocumentEvents docEvents)
     {
-        _package = package;
         var logger = LogManager.GetCurrentClassLogger();
         if (docEvents == null)
         {
             logger.Info($"{nameof(InitializeMixedLangInScriptWordsCheck)} not Initialized. Registered document events not found");
             return;
         }
-        docEvents.DocumentSaved += DocEvents_DocumentSaved;
+        docEvents.DocumentSaved += (document) => DocEvents_DocumentSaved(document, package);
         logger.Info($"{nameof(InitializeMixedLangInScriptWordsCheck)} Initialized");
     }
 
-    private static void DocEvents_DocumentSaved(Document document)
+    private static void DocEvents_DocumentSaved(Document document, AsyncPackage package)
     {
         var logger = LogManager.GetCurrentClassLogger();
         try
         {
-            var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+            var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
             if (!settings.MixedLangInScriptWordsCheckEnabled)
             {
                 return;
@@ -50,7 +48,7 @@ public static class AsyncPackageExtention
                 return;
             }
 
-            ToolWindowPane toolWindow = _package.FindToolWindow(typeof(MixedLangCheckToolWindow), 0, true);
+            ToolWindowPane toolWindow = package.FindToolWindow(typeof(MixedLangCheckToolWindow), 0, true);
             if ((null == toolWindow) || (null == toolWindow.Frame))
             {
                 logger.Error($"{nameof(MixedLangCheckToolWindow)} Cannot create tool window");
@@ -75,7 +73,7 @@ public static class AsyncPackageExtention
                 mixedLangWords.Add(word);
             }
 
-            vm.InitParams(mixedLangWords, _package);
+            vm.InitParams(mixedLangWords, package);
 
             if (mixedLangWords.Count != 0)
             {

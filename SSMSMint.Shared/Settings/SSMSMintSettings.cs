@@ -44,4 +44,9 @@ public class SSMSMintSettings : DialogPage
     [DisplayName("Include numbered procedures")]
     [Description("When generating a script for a regular procedure, all numbered versions of it will be automatically scripted")]
     public bool IncludeNumberedProcedures { get; set; } = true;
+
+    [Category("Text markers")]
+    [DisplayName("Enabled")]
+    [Description("Enable the creation of text markers (wavy lines under words). You need to reopen the tabs")]
+    public bool TextMarkersEnabled { get; set; } = true;
 }

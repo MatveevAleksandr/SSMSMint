@@ -2,10 +2,12 @@
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.UserSettings;
 using SSMSMint.Shared.Settings;
 using SSMSMint.Shared.SqlObjAtPosition;
 using System;
 using System.Text;
+using ScriptingOptions = Microsoft.SqlServer.Management.Smo.ScriptingOptions;
 using SqlObject = SSMSMint.Shared.SqlObjAtPosition.SqlObject;
 
 namespace SSMSMint.ScriptSqlObject;
@@ -18,88 +20,52 @@ internal static class ScriptProcessor
         var serverConnection = new ServerConnection() { ConnectionString = connectionStringBuilder.ConnectionString };
         var server = new Server(serverConnection);
 
-        var sriptingOptions = new ScriptingOptions()
-        {
-            ScriptData = false,
-            EnforceScriptingOptions = true,
-            IncludeHeaders = true,
-            ScriptBatchTerminator = true,
-            AnsiFile = true,
-            IncludeDatabaseContext = true,
-            NoCollation = true,
-            WithDependencies = false
-        };
-
         scriptText = sqlObj switch
         {
-            DatabaseSqlObject => GetDatabaseScript(server, sriptingOptions, (DatabaseSqlObject)sqlObj),
-            SchemaSqlObject => GetSchemaScript(server, sriptingOptions, (SchemaSqlObject)sqlObj),
-            StoredProcedureSqlObject => GetStoredProcedureScript(server, sriptingOptions, (StoredProcedureSqlObject)sqlObj, settings),
-            NamedTableReferenceSqlObject => GetNamedTableReferenceScript(server, sriptingOptions, (NamedTableReferenceSqlObject)sqlObj),
-            TableFunctionSqlObject => GetTableFunctionScript(server, sriptingOptions, (TableFunctionSqlObject)sqlObj),
-            UserDefinedDataTypeSqlObject => GetUserDataTypeScript(server, sriptingOptions, (UserDefinedDataTypeSqlObject)sqlObj),
-            ScalarFunctionSqlObject => GetScalarFunctionScript(server, sriptingOptions, (ScalarFunctionSqlObject)sqlObj),
+            DatabaseSqlObject => GetDatabaseScript(server, (DatabaseSqlObject)sqlObj),
+            SchemaSqlObject => GetSchemaScript(server, (SchemaSqlObject)sqlObj),
+            StoredProcedureSqlObject => GetStoredProcedureScript(server, (StoredProcedureSqlObject)sqlObj, settings),
+            NamedTableReferenceSqlObject => GetNamedTableReferenceScript(server, (NamedTableReferenceSqlObject)sqlObj),
+            TableFunctionSqlObject => GetTableFunctionScript(server, (TableFunctionSqlObject)sqlObj),
+            UserDefinedDataTypeSqlObject => GetUserDataTypeScript(server, (UserDefinedDataTypeSqlObject)sqlObj),
+            ScalarFunctionSqlObject => GetScalarFunctionScript(server, (ScalarFunctionSqlObject)sqlObj),
             _ => throw new NotImplementedException($"Type {sqlObj.GetType()} is not supported for scripting")
         };
 
         return !string.IsNullOrWhiteSpace(scriptText);
     }
 
-    private static string GetNamedTableReferenceScript(Server server, ScriptingOptions options, NamedTableReferenceSqlObject sqlObject)
+    private static string GetNamedTableReferenceScript(Server server, NamedTableReferenceSqlObject sqlObject)
     {
         var objUrn = server.Databases[sqlObject.ContextDatabaseName]?.Tables[sqlObject.ObjName, sqlObject.SchemaName]?.Urn ??
                      server.Databases[sqlObject.ContextDatabaseName]?.Views[sqlObject.ObjName, sqlObject.SchemaName]?.Urn ??
                      server.Databases[sqlObject.ContextDatabaseName]?.Synonyms[sqlObject.ObjName, sqlObject.SchemaName]?.Urn;
-
-        options.DriAllKeys = true;
-        options.Indexes = true;
-        options.Triggers = true;
-        options.Default = true;
-        options.DriAll = true;
-        options.ScriptDataCompression = true;
-        options.ScriptForCreateOrAlter = true;
-        options.ScriptSchema = true;
-        options.Permissions = true;
-        return GetUrnScript(server, options, objUrn);
+        return GetUrnScript(server, objUrn);
     }
 
-    private static string GetUserDataTypeScript(Server server, ScriptingOptions options, UserDefinedDataTypeSqlObject sqlObject)
+    private static string GetUserDataTypeScript(Server server, UserDefinedDataTypeSqlObject sqlObject)
     {
         var userDataTypeUrn = server.Databases[sqlObject.ContextDatabaseName]?.UserDefinedDataTypes[sqlObject.ObjName, sqlObject.SchemaName]?.Urn ??
                               server.Databases[sqlObject.ContextDatabaseName]?.UserDefinedTableTypes[sqlObject.ObjName, sqlObject.SchemaName]?.Urn;
-
-        options.ScriptForCreateOrAlter = true;
-        options.DriAllKeys = true;
-        options.Indexes = true;
-        options.Default = true;
-        options.DriAll = true;
-        options.ScriptDataCompression = true;
-        options.Permissions = true;
-        return GetUrnScript(server, options, userDataTypeUrn);
+        return GetUrnScript(server, userDataTypeUrn);
     }
 
-    private static string GetScalarFunctionScript(Server server, ScriptingOptions options, ScalarFunctionSqlObject sqlObject)
+    private static string GetScalarFunctionScript(Server server, ScalarFunctionSqlObject sqlObject)
     {
         var scalFuncUrn = server.Databases[sqlObject.ContextDatabaseName]?.UserDefinedFunctions[sqlObject.ObjName, sqlObject.SchemaName]?.Urn ??
                           server.Databases[sqlObject.ContextDatabaseName]?.UserDefinedAggregates[sqlObject.ObjName, sqlObject.SchemaName]?.Urn;
-
-        options.ScriptForCreateOrAlter = true;
-        return GetUrnScript(server, options, scalFuncUrn);
+        return GetUrnScript(server, scalFuncUrn);
     }
 
-    private static string GetTableFunctionScript(Server server, ScriptingOptions options, TableFunctionSqlObject sqlObject)
+    private static string GetTableFunctionScript(Server server, TableFunctionSqlObject sqlObject)
     {
         var tabFuncUrn = server.Databases[sqlObject.ContextDatabaseName]?.UserDefinedFunctions[sqlObject.ObjName, sqlObject.SchemaName]?.Urn;
-
-        options.ScriptForCreateOrAlter = true;
-        return GetUrnScript(server, options, tabFuncUrn);
+        return GetUrnScript(server, tabFuncUrn);
     }
 
-    private static string GetStoredProcedureScript(Server server, ScriptingOptions options, StoredProcedureSqlObject sqlObject, SSMSMintSettings settings)
+    private static string GetStoredProcedureScript(Server server, StoredProcedureSqlObject sqlObject, SSMSMintSettings settings)
     {
         var procedure = server.Databases[sqlObject.ContextDatabaseName]?.StoredProcedures[sqlObject.ObjName, sqlObject.SchemaName];
-        options.ScriptForCreateOrAlter = true;
-
         // Номерная процедура
         // Scripter не умеет работать с Number в Urn. т.к. это в целом старье, то оставим просто так
         if (
@@ -121,7 +87,7 @@ internal static class ScriptProcessor
         else if (procedure != null)
         {
             var res = new StringBuilder();
-            res.AppendLine(GetUrnScript(server, options, procedure.Urn));
+            res.AppendLine(GetUrnScript(server, procedure.Urn));
 
             // Если скриптуем обычную процу, то при включенной настройке скриптуем все её номерные версии при наличии
             if (settings.IncludeNumberedProcedures)
@@ -140,20 +106,20 @@ internal static class ScriptProcessor
         else
         {
             var synonymUrn = server.Databases[sqlObject.ContextDatabaseName]?.Synonyms[sqlObject.ObjName, sqlObject.SchemaName]?.Urn;
-            return GetUrnScript(server, options, synonymUrn);
+            return GetUrnScript(server, synonymUrn);
         }
     }
 
-    private static string GetSchemaScript(Server server, ScriptingOptions options, SchemaSqlObject sqlObject)
+    private static string GetSchemaScript(Server server, SchemaSqlObject sqlObject)
     {
         var schemaUrn = server.Databases[sqlObject.ContextDatabaseName].Schemas[sqlObject.ObjName]?.Urn;
-        return GetUrnScript(server, options, schemaUrn);
+        return GetUrnScript(server, schemaUrn);
     }
 
-    private static string GetDatabaseScript(Server server, ScriptingOptions options, DatabaseSqlObject sqlObject)
+    private static string GetDatabaseScript(Server server, DatabaseSqlObject sqlObject)
     {
         var databaseUrn = server.Databases[sqlObject.ObjName]?.Urn;
-        return GetUrnScript(server, options, databaseUrn);
+        return GetUrnScript(server, databaseUrn);
     }
 
     private static string GetNumberedProcedureScript(NumberedStoredProcedure procedure, string contextDataBaseName)
@@ -171,14 +137,16 @@ internal static class ScriptProcessor
         return res.ToString();
     }
 
-    private static string GetUrnScript(Server server, ScriptingOptions options, Urn urn)
+    private static string GetUrnScript(Server server, Urn urn)
     {
         if (urn == null)
         {
             return null;
         }
 
-        var scripter = new Scripter(server) { Options = options };
+        // Возьмем настройки скриптования из Options - SQL Server Object Explorer - Scripting
+        var sriptingOptions = (ScriptingOptions)Settings<SqlStudio>.Current.SSMS.ScriptingOptions.GetSmoScriptingOptions();
+        var scripter = new Scripter(server) { Options = sriptingOptions };
         var res = new StringBuilder();
         foreach (var line in scripter.Script(new[] { urn }))
         {

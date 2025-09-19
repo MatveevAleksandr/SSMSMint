@@ -9,11 +9,8 @@ namespace SSMSMint.Regions;
 
 public static class AsyncPackageExtention
 {
-    private static AsyncPackage _package;
-
     public static async Task InitializeRegions(this AsyncPackage package, WindowEvents winEvents)
     {
-        _package = package;
         var logger = LogManager.GetCurrentClassLogger();
 
         await RefreshRegionsCommand.InitializeAsync(package);
@@ -23,17 +20,17 @@ public static class AsyncPackageExtention
             logger.Info($"{nameof(InitializeRegions)} not Initialized. Registered window events not found");
             return;
         }
-        winEvents.WindowCreated += WinEvents_WindowCreated;
+        winEvents.WindowCreated += (window) => WinEvents_WindowCreated(window, package);
 
         logger.Info($"{nameof(InitializeRegions)} Initialized");
     }
 
-    private static void WinEvents_WindowCreated(Window Window)
+    private static void WinEvents_WindowCreated(Window Window, AsyncPackage package)
     {
         try
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var settings = (SSMSMintSettings)_package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
+            var settings = (SSMSMintSettings)package.GetDialogPage(typeof(SSMSMintSettings)) ?? throw new Exception("Settings not found");
             var textDocument = (TextDocument)Window.Document.Object("TextDocument");
             textDocument.CreateCustomRegions(settings);
         }

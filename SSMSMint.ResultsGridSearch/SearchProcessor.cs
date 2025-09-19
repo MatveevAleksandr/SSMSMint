@@ -100,7 +100,7 @@ internal static class SearchProcessor
 
             currentGridControl.GetCurrentCell(out var currentGridControlRowIndex, out var currentGridControlColIndex);
             var currentGridIndex = FrameService.GetAllGridControls().IndexOf(currentGridControl);
-            var currentGridColHeader = currentGridControl.GridStorage.GetSchemaTable().Rows[currentGridControlColIndex - 1][0]?.ToString();
+            var currentGridColHeader = currentGridControl.GridStorage.GetColumnHeader(currentGridControlColIndex);
             var currentGridCellData = currentGridControl.GridStorage.GetCellDataAsString(currentGridControlRowIndex, currentGridControlColIndex);
 
             var startPosition = new GridCell(
@@ -194,7 +194,7 @@ internal static class SearchProcessor
 
             currentGridControl.GetCurrentCell(out var currentGridControlRowIndex, out var currentGridControlColIndex);
             var currentGridIndex = FrameService.GetAllGridControls().IndexOf(currentGridControl);
-            var currentGridColHeader = currentGridControl.GridStorage.GetSchemaTable().Rows[currentGridControlColIndex - 1][0]?.ToString();
+            var currentGridColHeader = currentGridControl.GridStorage.GetColumnHeader(currentGridControlColIndex);
             var currentGridCellData = currentGridControl.GridStorage.GetCellDataAsString(currentGridControlRowIndex, currentGridControlColIndex);
 
             var startPosition = new GridCell(

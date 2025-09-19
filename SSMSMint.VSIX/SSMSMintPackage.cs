@@ -10,6 +10,8 @@ using SSMSMint.ResultsGridSearch;
 using SSMSMint.ScriptSqlObject;
 using SSMSMint.Shared.Extentions;
 using SSMSMint.Shared.Settings;
+using SSMSMint.TextMarker;
+using SSMSMint.ViewGridCellAsJson;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -28,16 +30,16 @@ namespace SSMSMint.VSIX;
 public sealed class SSMSMintPackage : AsyncPackage
 {
     public const string PackageGuidString = "94de8f9c-19ee-4f89-a394-81b5b17c0e0e";
-    public DocumentEvents DocumentEvents { get; set; }
-    public WindowEvents WindowEvents { get; set; }
+    private DocumentEvents DocumentEvents { get; set; }
+    private WindowEvents WindowEvents { get; set; }
 
     protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
     {
-        await base.InitializeAsync(cancellationToken, progress);
-        await JoinableTaskFactory.SwitchToMainThreadAsync();
-
         try
         {
+            await base.InitializeAsync(cancellationToken, progress);
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+
             LogManager.Setup().LoadCustomConfiguration();
 
             // Нужно держать ссылки на Events иначе оно где то в процессе работы очищается даже если есть подписки
@@ -49,7 +51,9 @@ public sealed class SSMSMintPackage : AsyncPackage
             await this.InitializeLocateInObjectExplorer();
             await this.InitializeScriptSqlObject();
             await this.InitializeRegions(WindowEvents);
+            await this.InitializeViewGridCellAsJson();
             this.InitializeMixedLangInScriptWordsCheck(DocumentEvents);
+            this.InitializeTextMarker(WindowEvents);
 
             LogManager.GetCurrentClassLogger().Info("Initialized");
         }

@@ -152,13 +152,15 @@ public static class FrameService
     }
 
     /// <summary>
-    /// Получаем текущую активную вкладку
+    /// Получаем вкладку, на которой спозиционирован юзер
     /// </summary>
-    private static IVsWindowFrame GetActiveWindowFrame()
+    private static IVsWindowFrame GetOnScreenWindowFrame()
     {
         try
         {
             _logger.Debug("Getting active window frame...");
+
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
 
             var shell = ServiceCache.VsUIShell;
             if (shell == null)
@@ -178,7 +180,7 @@ public static class FrameService
                 if (frame == null)
                     continue;
 
-                frame.IsOnScreen(out var onScreenFrame); // Вкладка на которой спозиционирован юзер
+                frame.IsOnScreen(out var onScreenFrame);
                 if (onScreenFrame == 1)
                 {
                     _logger.Info($"Active window frame found (checked {frameCount} frames)");
@@ -326,7 +328,7 @@ public static class FrameService
     {
         _logger.Debug("Getting sql script editor control...");
 
-        var frame = GetActiveWindowFrame();
+        var frame = GetOnScreenWindowFrame();
 
         if (frame == null)
         {

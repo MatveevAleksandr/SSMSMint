@@ -39,8 +39,11 @@
 			<Group guid="guidMainMenuCmdSet" id="MainMenuGroupId" priority="0x0100">
 				<Parent guid="guidMainMenuCmdSet" id="MainMenuId" />
 			</Group>
-			<Group guid="guidSqlEditorContextWinCmdSet" id="SqlEditorContextWinGroupId" priority="0x0201">
-				<Parent guid="guidSqlEditorContextWinCmdSet" id="SqlEditorContextWinMenuId" />
+			<Group guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" priority="0x0201">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextMenuId" />
+			</Group>
+			<Group guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" priority="0x0001">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextMenuId" />
 			</Group>
 		</Groups>
 
@@ -71,22 +74,30 @@
 					<ButtonText>Find data in Results Grid</ButtonText>
 				</Strings>
 			</Button>
+			
 			<Button guid="guidCommandsCmdSet" id="LocateInObjectExplorerCommandId" priority="0x0100" type="Button">
-				<Parent guid="guidSqlEditorContextWinCmdSet" id="SqlEditorContextWinGroupId" />
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
 				<Strings>
 					<ButtonText>Locate in object explorer</ButtonText>
 				</Strings>
 			</Button>
 			<Button guid="guidCommandsCmdSet" id="ScriptSqlObjectAtCursorCommandId" priority="0x0100" type="Button">
-				<Parent guid="guidSqlEditorContextWinCmdSet" id="SqlEditorContextWinGroupId" />
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
 				<Strings>
 					<ButtonText>Script in new window</ButtonText>
 				</Strings>
 			</Button>
 			<Button guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" priority="0x0100" type="Button">
-				<Parent guid="guidSqlEditorContextWinCmdSet" id="SqlEditorContextWinGroupId" />
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
 				<Strings>
 					<ButtonText>Refresh regions</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidCommandsCmdSet" id="ViewGridCellAsJsonCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>View cell as JSON</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>
@@ -120,10 +131,15 @@
 			<IDSymbol name="MainMenuGroupId" value="0x1020" />
 		</GuidSymbol>
 
-		<!-- Контекстное меню на окне редактора SQL кода -->
-		<GuidSymbol name="guidSqlEditorContextWinCmdSet" value="{33F13AC3-80BB-4ECB-85BC-225435603A5E}">
-			<IDSymbol name="SqlEditorContextWinMenuId" value="0x0050" />
-			<IDSymbol name="SqlEditorContextWinGroupId" value="0x1020" />
+		<!-- Контекстные меню по ПКМ-->
+		<GuidSymbol name="guidContextMenuCmdSet" value="{33F13AC3-80BB-4ECB-85BC-225435603A5E}">
+			<!-- Контекстное меню на окне редактора SQL кода -->
+			<IDSymbol name="SqlEditorContextMenuId" value="0x0050" />
+			<IDSymbol name="SqlEditorContextGroupId" value="0x1020" />
+
+			<!-- Контекстное меню на Results Grids -->
+			<IDSymbol name="ResultsGridContextMenuId" value="0x0070" />
+			<IDSymbol name="ResultsGridContextGroupId" value="0x1030" />
 		</GuidSymbol>
 
 		<!-- Команды -->
@@ -132,6 +148,7 @@
 			<IDSymbol name="LocateInObjectExplorerCommandId" value="0x101"/>
 			<IDSymbol name="ScriptSqlObjectAtCursorCommandId" value="0x102"/>
 			<IDSymbol name="RefreshRegionsCommandId" value="0x103"/>
+			<IDSymbol name="ViewGridCellAsJsonCommandId" value="0x104"/>
 		</GuidSymbol>
 		
 		<!-- Изображения -->
