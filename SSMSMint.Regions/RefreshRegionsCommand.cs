@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using NLog;
+using SSMSMint.Shared;
 using SSMSMint.Shared.Settings;
 using System;
 using System.ComponentModel.Design;
@@ -20,7 +21,7 @@ internal sealed class RefreshRegionsCommand
     /// <summary>
     /// Command menu group (command set GUID).
     /// </summary>
-    public static readonly Guid CommandSet = new Guid("E9307D44-1C11-44C0-937E-A66F19EA3B26");
+    public static readonly Guid CommandSet = GUIDs.CommandSetGUID;
 
     /// <summary>
     /// VS Package that provides this command, not null.

@@ -3,9 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:local="clr-namespace:SSMSMint.MixedLangInScriptWordsCheck.Views"
              xmlns:viewmodels="clr-namespace:SSMSMint.MixedLangInScriptWordsCheck.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:MixedLangCheckToolWindowViewModel}"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="300">
     <Grid Margin="15">
@@ -22,9 +25,9 @@
                    HorizontalAlignment="Center"
                    TextAlignment="Center">
             Words with a combination of
-            <Run Text="Russian" Foreground="Red"/>
+            <Run Text="Russian" Foreground="Salmon"/>
             and
-            <Run Text="English" Foreground="Blue"/>
+            <Run Text="English" Foreground="SkyBlue"/>
             letters were found
         </TextBlock>
         <Separator Height="10" Grid.Row="1"/>
@@ -37,7 +40,7 @@
             Grid.Row="3"
             ItemsSource="{Binding MixedLangWords}"
             Margin="0,10,0,0"
-            MouseDoubleClick="MixedLangWordDoubleClickAsync">
+            SelectionChanged="MixedLangWordItemSelectionChanged">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

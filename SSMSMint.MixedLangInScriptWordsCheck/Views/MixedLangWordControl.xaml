@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SSMSMint.MixedLangInScriptWordsCheck.Views"
              xmlns:converters="clr-namespace:SSMSMint.MixedLangInScriptWordsCheck.Converters"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="root">
@@ -15,7 +18,6 @@
     <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Padding="5">
         <DockPanel>
             <TextBlock Name="TBWord"
-                 Foreground="#374151"
                  FontWeight="SemiBold"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Center"
@@ -27,16 +29,14 @@
                         DockPanel.Dock="Right">
                 <TextBlock Text="{Binding LineIndex, ElementName=root, Converter={StaticResource LineIndexToDisplayConverter}}"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   Foreground="#2D4156"/>
+                   HorizontalAlignment="Right"/>
                 <Rectangle Width="40" 
                            Height="1" 
                            HorizontalAlignment="Right"
                            Fill="#E0E0E0"/>
                 <TextBlock Text="{Binding ColumnIndex, ElementName=root, Converter={StaticResource ColumnIndexToDisplayConverter}}"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   Foreground="#2D4156"/>
+                   HorizontalAlignment="Right"/>
             </StackPanel>
         </DockPanel>
     </Border>

@@ -140,6 +140,10 @@
     <Content Include="Resources\ResultsGridSearchToolWindowCommand.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SSMSMint.CommentToggle\SSMSMint.CommentToggle.csproj">
+      <Project>{bd42f2ca-d9bc-89b2-0b5a-886a89631dec}</Project>
+      <Name>SSMSMint.CommentToggle</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SSMSMint.LocateInObjectExplorer\SSMSMint.LocateInObjectExplorer.csproj">
       <Project>{4a40b76d-d5de-c0c4-80d1-ac96362664f1}</Project>
       <Name>SSMSMint.LocateInObjectExplorer</Name>
@@ -151,6 +155,10 @@
     <ProjectReference Include="..\SSMSMint.Regions\SSMSMint.Regions.csproj">
       <Project>{1440c270-cdd2-2b70-ecae-a30acaf810e5}</Project>
       <Name>SSMSMint.Regions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSMSMint.ResultsGridCopyHeaders\SSMSMint.ResultsGridCopyHeaders.csproj">
+      <Project>{8ae0c60d-62f7-e1fa-eae8-ca654f0ce829}</Project>
+      <Name>SSMSMint.ResultsGridCopyHeaders</Name>
     </ProjectReference>
     <ProjectReference Include="..\SSMSMint.ResultsGridSearch\SSMSMint.ResultsGridSearch.csproj">
       <Project>{57f4fed3-76b4-3448-2520-87b0dfd7ec4f}</Project>

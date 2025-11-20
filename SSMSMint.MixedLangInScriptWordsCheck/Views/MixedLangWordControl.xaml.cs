@@ -55,11 +55,11 @@ public partial class MixedLangWordControl : UserControl
 
             if (Regex.IsMatch(value, @"[а-яА-ЯёЁ]"))
             {
-                run.Foreground = Brushes.Red;
+                run.Foreground = Brushes.Salmon;
             }
             else if (Regex.IsMatch(value, @"[a-zA-Z]"))
             {
-                run.Foreground = Brushes.Blue;
+                run.Foreground = Brushes.SkyBlue;
             }
             else
             {

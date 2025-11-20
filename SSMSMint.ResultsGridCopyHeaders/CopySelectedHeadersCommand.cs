@@ -1,28 +1,22 @@
-﻿using EnvDTE;
-using EnvDTE80;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NLog;
 using SSMSMint.Shared;
-using SSMSMint.Shared.Services;
 using System;
 using System.ComponentModel.Design;
-using System.Drawing;
 using Task = System.Threading.Tasks.Task;
 
-namespace SSMSMint.ViewGridCellAsJson;
+namespace SSMSMint.ResultsGridCopyHeaders;
 
 /// <summary>
 /// Command handler
 /// </summary>
-public sealed class ViewGridCellAsJsonCommand
+public sealed class CopySelectedHeadersCommand
 {
     /// <summary>
     /// Command ID.
     /// </summary>
-    public const int CommandId = 0x104;
+    public const int CommandId = 0x106;
 
     /// <summary>
     /// Command menu group (command set GUID).
@@ -35,14 +29,15 @@ public sealed class ViewGridCellAsJsonCommand
     private readonly AsyncPackage package;
 
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private readonly CopyHeadersProcessor _processor = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ViewGridCellAsJsonCommand"/> class.
+    /// Initializes a new instance of the <see cref="CopySelectedHeadersCommand"/> class.
     /// Adds our command handlers for menu (commands must exist in the command table file)
     /// </summary>
     /// <param name="package">Owner package, not null.</param>
     /// <param name="commandService">Command service to add command to, not null.</param>
-    private ViewGridCellAsJsonCommand(AsyncPackage package, OleMenuCommandService commandService)
+    private CopySelectedHeadersCommand(AsyncPackage package, OleMenuCommandService commandService)
     {
         this.package = package ?? throw new ArgumentNullException(nameof(package));
         commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -56,7 +51,7 @@ public sealed class ViewGridCellAsJsonCommand
     /// <summary>
     /// Gets the instance of the command.
     /// </summary>
-    public static ViewGridCellAsJsonCommand Instance
+    public static CopySelectedHeadersCommand Instance
     {
         get;
         private set;
@@ -79,12 +74,12 @@ public sealed class ViewGridCellAsJsonCommand
     /// <param name="package">Owner package, not null.</param>
     public static async Task InitializeAsync(AsyncPackage package)
     {
-        // Switch to the main thread - the call to AddCommand in ViewGridCellAsJsonCommand's constructor requires
+        // Switch to the main thread - the call to AddCommand in CopySelectedHeadersCommand's constructor requires
         // the UI thread.
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
         OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-        Instance = new ViewGridCellAsJsonCommand(package, commandService);
+        Instance = new CopySelectedHeadersCommand(package, commandService);
     }
 
     /// <summary>
@@ -99,37 +94,7 @@ public sealed class ViewGridCellAsJsonCommand
         try
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
-            var gridControl = FrameService.GetLastFocusedOrFirstGridControl() ?? throw new Exception("Grid control is not found");
-
-            // Получим ячейку и ее содержимое
-            gridControl.GetCurrentCell(out var rowIndex, out var columnIndex);
-            var cellData = gridControl.GridStorage.GetCellDataAsString(rowIndex, columnIndex);
-            gridControl.GetHeaderInfo(columnIndex, out var colHeader, out Bitmap _);
-            if (string.IsNullOrWhiteSpace(colHeader))
-            {
-                colHeader = "Undefined";
-            }
-
-            // Тут проверим на JSON ли. Если нет, то выбросит JsonReaderException
-            var parsedJson = JToken.Parse(cellData);
-            var formattedData = parsedJson.ToString(Formatting.Indented);
-
-            // Отобразим отформатированный JSON
-            var newJsonWindow = dte.ItemOperations.NewFile("General\\Text File", $"{colHeader}_JsonView.json");
-            var newJsonTextDoc = (TextDocument)newJsonWindow.Document.Object("TextDocument");
-            newJsonTextDoc.Selection?.Insert(formattedData);
-            newJsonTextDoc.Selection?.StartOfDocument();
-        }
-        catch (JsonReaderException)
-        {
-            VsShellUtilities.ShowMessageBox(
-                package,
-                "The contents of the cell are not correct JSON",
-                "Warning",
-                OLEMSGICON.OLEMSGICON_WARNING,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            _processor.CopyHeadersToBuffer(true);
         }
         catch (Exception ex)
         {

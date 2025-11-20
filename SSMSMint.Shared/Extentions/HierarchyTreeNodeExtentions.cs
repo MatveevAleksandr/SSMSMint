@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -50,6 +51,11 @@ public static class HierarchyTreeNodeExtentions
         {
             return null;
         }
+
+        // Clear filter on filtered node
+        var containedItem = node.GetType().GetProperty("ContainedItem", BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).GetValue(node);
+        containedItem.GetType().GetProperty("Filter", BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SetValue(containedItem, null);
+
         node.Expand();
         await node.WaitForExpansion();
         return node;

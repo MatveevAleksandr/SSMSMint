@@ -81,16 +81,22 @@
 					<ButtonText>Locate in object explorer</ButtonText>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsCmdSet" id="ScriptSqlObjectAtCursorCommandId" priority="0x0100" type="Button">
+			<Button guid="guidCommandsCmdSet" id="ScriptSqlObjectAtCursorCommandId" priority="0x0101" type="Button">
 				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
 				<Strings>
 					<ButtonText>Script in new window</ButtonText>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" priority="0x0100" type="Button">
+			<Button guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" priority="0x0102" type="Button">
 				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
 				<Strings>
 					<ButtonText>Refresh regions</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CommentToggleCommandId" priority="0x0103" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
+				<Strings>
+					<ButtonText>/*Comment/Uncomment selection*/</ButtonText>
 				</Strings>
 			</Button>
 
@@ -98,6 +104,18 @@
 				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
 				<Strings>
 					<ButtonText>View cell as JSON</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CopyAllHeadersCommandId" priority="0x0101" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>Copy all Headers</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CopySelectedHeadersCommandId" priority="0x0102" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>Copy selected Headers</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>
@@ -119,6 +137,7 @@
 		<KeyBinding guid="guidCommandsCmdSet" id="LocateInObjectExplorerCommandId" editor="guidVSStd97" key1="VK_F11" mod1="Shift" />
 		<KeyBinding guid="guidCommandsCmdSet" id="ScriptSqlObjectAtCursorCommandId" editor="guidVSStd97" key1="VK_F11" mod1="Control" />
 		<KeyBinding guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" editor="guidVSStd97" key1="k" mod1="Control" key2="o" mod2="Control" />
+		<KeyBinding guid="guidCommandsCmdSet" id="CommentToggleCommandId" editor="guidVSStd97" key1="VK_MULTIPLY" mod1="Control" />
 	</KeyBindings>
 
 	<Symbols>
@@ -149,6 +168,9 @@
 			<IDSymbol name="ScriptSqlObjectAtCursorCommandId" value="0x102"/>
 			<IDSymbol name="RefreshRegionsCommandId" value="0x103"/>
 			<IDSymbol name="ViewGridCellAsJsonCommandId" value="0x104"/>
+			<IDSymbol name="CopyAllHeadersCommandId" value="0x105"/>
+			<IDSymbol name="CopySelectedHeadersCommandId" value="0x106"/>
+			<IDSymbol name="CommentToggleCommandId" value="0x107"/>
 		</GuidSymbol>
 		
 		<!-- Изображения -->

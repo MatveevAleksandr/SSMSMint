@@ -42,7 +42,7 @@ internal class MixedLangCheckToolWindowViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public async Task MixedLangWordDoubleClickAsync(MixedLangWord word)
+    public async Task MixedLangWordItemSelectionChanged(MixedLangWord word)
     {
         var dte = (DTE2)await _package.GetServiceAsync(typeof(DTE));
         var activeDoc = dte?.ActiveDocument;

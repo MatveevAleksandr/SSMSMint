@@ -1,8 +1,9 @@
-﻿using SSMSMint.ResultsGridSearch.Models;
-using SSMSMint.ResultsGridSearch.ViewModels;
-using NLog;
-using System.Windows.Controls;
+﻿using NLog;
 using SSMSMint.ResultsGridSearch.Models;
+using SSMSMint.ResultsGridSearch.ViewModels;
+using System;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace SSMSMint.ResultsGridSearch.Views;
 
@@ -17,12 +18,18 @@ public partial class ResultsGridSearchToolWindowControl : UserControl
     /// </summary>
     public ResultsGridSearchToolWindowControl()
     {
+        var dict = new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/SSMSMint.Shared;component/Themes/MainSSMSTheme.xaml")
+        };
+        Application.Current.Resources.MergedDictionaries.Add(dict);
+
         InitializeComponent();
         _logger.Info($"{nameof(ResultsGridSearchToolWindowControl)} initialized");
         DataContext = new ResultsGridSearchToolWindowViewModel();
     }
 
-    private void FindAllSearchResultsDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void SearchResultItemSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListView listView)
         {
@@ -39,6 +46,6 @@ public partial class ResultsGridSearchToolWindowControl : UserControl
             return;
         }
 
-        vm.FindAllSearchResultsDoubleClick(selectedItem);
+        vm.SearchResultItemSelectionChanged(selectedItem);
     }
 }

@@ -68,7 +68,7 @@ internal class ResultsGridSearchToolWindowViewModel : INotifyPropertyChanged
             );
     }
 
-    public void FindAllSearchResultsDoubleClick(GridCell selectedItem)
+    public void SearchResultItemSelectionChanged(GridCell selectedItem)
     {
         SearchProcessor.FocusCell(selectedItem);
     }

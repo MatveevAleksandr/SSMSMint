@@ -1,7 +1,8 @@
 ﻿using SSMSMint.MixedLangInScriptWordsCheck.Models;
 using SSMSMint.MixedLangInScriptWordsCheck.ViewModels;
+using System;
+using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace SSMSMint.MixedLangInScriptWordsCheck.Views;
 
@@ -12,11 +13,17 @@ public partial class MixedLangCheckToolWindowControl : UserControl
 {
     public MixedLangCheckToolWindowControl()
     {
+        var dict = new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/SSMSMint.Shared;component/Themes/MainSSMSTheme.xaml")
+        };
+        Application.Current.Resources.MergedDictionaries.Add(dict);
+
         InitializeComponent();
         DataContext = new MixedLangCheckToolWindowViewModel();
     }
 
-    private async void MixedLangWordDoubleClickAsync(object sender, MouseButtonEventArgs e)
+    private async void MixedLangWordItemSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListView listView)
         {
@@ -33,6 +40,6 @@ public partial class MixedLangCheckToolWindowControl : UserControl
             return;
         }
 
-        await vm.MixedLangWordDoubleClickAsync(selectedItem);
+        await vm.MixedLangWordItemSelectionChanged(selectedItem);
     }
 }

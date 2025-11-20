@@ -3,9 +3,11 @@ using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using NLog;
+using SSMSMint.CommentToggle;
 using SSMSMint.LocateInObjectExplorer;
 using SSMSMint.MixedLangInScriptWordsCheck;
 using SSMSMint.Regions;
+using SSMSMint.ResultsGridCopyHeaders;
 using SSMSMint.ResultsGridSearch;
 using SSMSMint.ScriptSqlObject;
 using SSMSMint.Shared.Extentions;
@@ -52,6 +54,8 @@ public sealed class SSMSMintPackage : AsyncPackage
             await this.InitializeScriptSqlObject();
             await this.InitializeRegions(WindowEvents);
             await this.InitializeViewGridCellAsJson();
+            await this.InitializeResultsGridCopyHeaders();
+            await this.InitializeCommentToggle();
             this.InitializeMixedLangInScriptWordsCheck(DocumentEvents);
             this.InitializeTextMarker(WindowEvents);
 

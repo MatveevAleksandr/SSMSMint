@@ -2,11 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SSMSMint.ResultsGridSearch.Views"
              xmlns:converters="clr-namespace:SSMSMint.ResultsGridSearch.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="500"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
              x:Name="root">
     <UserControl.Resources>
         <converters:RowIndexToDisplayConverter x:Key="RowIndexToDisplayConverter"/>
@@ -15,7 +18,6 @@
     <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Padding="5">
         <DockPanel>
             <TextBlock Name="TBCellData"
-                 Foreground="#374151"
                  FontWeight="SemiBold"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Center"
@@ -27,24 +29,21 @@
                         DockPanel.Dock="Right">
                 <TextBlock Text="{Binding GridIndex, ElementName=root, Converter={StaticResource GridIndexToDisplayConverter}}"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   Foreground="#2D4156"/>
+                   HorizontalAlignment="Right"/>
                 <Rectangle Width="40" 
                            Height="1" 
                            HorizontalAlignment="Right"
                            Fill="#E0E0E0"/>
                 <TextBlock Text="{Binding RowIndex, ElementName=root, Converter={StaticResource RowIndexToDisplayConverter}}"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   Foreground="#2D4156"/>
+                   HorizontalAlignment="Right"/>
                 <Rectangle Width="40" 
                            Height="1" 
                            HorizontalAlignment="Right"
                            Fill="#E0E0E0"/>
                 <TextBlock Text="{Binding ColHeader, ElementName=root}"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   Foreground="#2D4156"/>
+                   HorizontalAlignment="Right"/>
             </StackPanel>
         </DockPanel>
     </Border>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" ?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="SSMSMint.9b315bee-163e-4d88-b14d-5373b5bc8bae" Version="1.0" Language="en-US" Publisher="Aleksandr Matveev" />
+        <Identity Id="SSMSMint.9b315bee-163e-4d88-b14d-5373b5bc8bae" Version="1.3.0" Language="en-US" Publisher="Aleksandr Matveev" />
         <DisplayName>SSMSMint</DisplayName>
         <Description xml:space="preserve">Extention for SSMS</Description>
     </Metadata>

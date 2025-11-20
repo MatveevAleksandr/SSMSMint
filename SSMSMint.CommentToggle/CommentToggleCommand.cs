@@ -2,27 +2,21 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NLog;
 using SSMSMint.Shared;
 using SSMSMint.Shared.Services;
 using System;
 using System.ComponentModel.Design;
-using System.Drawing;
 using Task = System.Threading.Tasks.Task;
 
-namespace SSMSMint.ViewGridCellAsJson;
+namespace SSMSMint.CommentToggle;
 
-/// <summary>
-/// Command handler
-/// </summary>
-public sealed class ViewGridCellAsJsonCommand
+internal class CommentToggleCommand
 {
     /// <summary>
     /// Command ID.
     /// </summary>
-    public const int CommandId = 0x104;
+    public const int CommandId = 0x107;
 
     /// <summary>
     /// Command menu group (command set GUID).
@@ -37,12 +31,12 @@ public sealed class ViewGridCellAsJsonCommand
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ViewGridCellAsJsonCommand"/> class.
+    /// Initializes a new instance of the <see cref="CommentToggleCommand"/> class.
     /// Adds our command handlers for menu (commands must exist in the command table file)
     /// </summary>
     /// <param name="package">Owner package, not null.</param>
     /// <param name="commandService">Command service to add command to, not null.</param>
-    private ViewGridCellAsJsonCommand(AsyncPackage package, OleMenuCommandService commandService)
+    private CommentToggleCommand(AsyncPackage package, OleMenuCommandService commandService)
     {
         this.package = package ?? throw new ArgumentNullException(nameof(package));
         commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -56,7 +50,7 @@ public sealed class ViewGridCellAsJsonCommand
     /// <summary>
     /// Gets the instance of the command.
     /// </summary>
-    public static ViewGridCellAsJsonCommand Instance
+    public static CommentToggleCommand Instance
     {
         get;
         private set;
@@ -79,12 +73,12 @@ public sealed class ViewGridCellAsJsonCommand
     /// <param name="package">Owner package, not null.</param>
     public static async Task InitializeAsync(AsyncPackage package)
     {
-        // Switch to the main thread - the call to AddCommand in ViewGridCellAsJsonCommand's constructor requires
+        // Switch to the main thread - the call to AddCommand in CommentToggleCommand's constructor requires
         // the UI thread.
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
         OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-        Instance = new ViewGridCellAsJsonCommand(package, commandService);
+        Instance = new CommentToggleCommand(package, commandService);
     }
 
     /// <summary>
@@ -98,38 +92,38 @@ public sealed class ViewGridCellAsJsonCommand
     {
         try
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
             var dte = (DTE2)await package.GetServiceAsync(typeof(DTE)) ?? throw new Exception("DTE core not found");
-            var gridControl = FrameService.GetLastFocusedOrFirstGridControl() ?? throw new Exception("Grid control is not found");
+            var textDocument = (TextDocument)dte.ActiveDocument.Object("TextDocument");
+            var selection = textDocument.Selection;
 
-            // Получим ячейку и ее содержимое
-            gridControl.GetCurrentCell(out var rowIndex, out var columnIndex);
-            var cellData = gridControl.GridStorage.GetCellDataAsString(rowIndex, columnIndex);
-            gridControl.GetHeaderInfo(columnIndex, out var colHeader, out Bitmap _);
-            if (string.IsNullOrWhiteSpace(colHeader))
+            if (selection == null)
+                return;
+
+            var lineStart = selection.TopPoint.Line;
+            var colStart = selection.TopPoint.LineCharOffset;
+            var lineEnd = selection.BottomPoint.Line;
+            var colEnd = selection.BottomPoint.LineCharOffset;
+
+            var commented = CommentService.IsTextCommented(textDocument, lineStart, colStart, lineEnd, colEnd, out var _);
+
+            if (commented)
             {
-                colHeader = "Undefined";
+                CommentService.UncommentText(textDocument, lineStart, colStart, lineEnd, colEnd);
             }
-
-            // Тут проверим на JSON ли. Если нет, то выбросит JsonReaderException
-            var parsedJson = JToken.Parse(cellData);
-            var formattedData = parsedJson.ToString(Formatting.Indented);
-
-            // Отобразим отформатированный JSON
-            var newJsonWindow = dte.ItemOperations.NewFile("General\\Text File", $"{colHeader}_JsonView.json");
-            var newJsonTextDoc = (TextDocument)newJsonWindow.Document.Object("TextDocument");
-            newJsonTextDoc.Selection?.Insert(formattedData);
-            newJsonTextDoc.Selection?.StartOfDocument();
-        }
-        catch (JsonReaderException)
-        {
-            VsShellUtilities.ShowMessageBox(
-                package,
-                "The contents of the cell are not correct JSON",
-                "Warning",
-                OLEMSGICON.OLEMSGICON_WARNING,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            else
+            {
+                if (selection.IsEmpty)
+                {
+                    CommentService.CommentText(textDocument, lineStart, colStart, lineEnd, colEnd, CommentService.CommentType.LineComment);
+                }
+                else
+                {
+                    CommentService.CommentText(textDocument, lineStart, colStart, lineEnd, colEnd, CommentService.CommentType.SurroundedComment);
+                    var endPoint = selection.BottomPoint.CreateEditPoint(); // selection moved
+                    selection.MoveTo(lineStart, colStart);
+                    selection.MoveToPoint(endPoint, true);
+                }
+            }
         }
         catch (Exception ex)
         {

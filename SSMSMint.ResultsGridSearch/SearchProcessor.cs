@@ -6,6 +6,7 @@ using SSMSMint.Shared.Extentions;
 using SSMSMint.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace SSMSMint.ResultsGridSearch;
 
@@ -100,7 +101,7 @@ internal static class SearchProcessor
 
             currentGridControl.GetCurrentCell(out var currentGridControlRowIndex, out var currentGridControlColIndex);
             var currentGridIndex = FrameService.GetAllGridControls().IndexOf(currentGridControl);
-            var currentGridColHeader = currentGridControl.GridStorage.GetColumnHeader(currentGridControlColIndex);
+            currentGridControl.GetHeaderInfo(currentGridControlColIndex, out var currentGridColHeader, out Bitmap _);
             var currentGridCellData = currentGridControl.GridStorage.GetCellDataAsString(currentGridControlRowIndex, currentGridControlColIndex);
 
             var startPosition = new GridCell(
@@ -194,7 +195,7 @@ internal static class SearchProcessor
 
             currentGridControl.GetCurrentCell(out var currentGridControlRowIndex, out var currentGridControlColIndex);
             var currentGridIndex = FrameService.GetAllGridControls().IndexOf(currentGridControl);
-            var currentGridColHeader = currentGridControl.GridStorage.GetColumnHeader(currentGridControlColIndex);
+            currentGridControl.GetHeaderInfo(currentGridControlColIndex, out var currentGridColHeader, out Bitmap _);
             var currentGridCellData = currentGridControl.GridStorage.GetCellDataAsString(currentGridControlRowIndex, currentGridControlColIndex);
 
             var startPosition = new GridCell(
