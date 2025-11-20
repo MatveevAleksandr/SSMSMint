@@ -43,13 +43,15 @@ I’ll be happy if others also find this tool as useful as I do.
 
   <img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/46a719ac-ede3-4168-b782-9e78b65e8be2" />
 
+* Copying selected or all headers from Results Grids.
+  
+  <img width="300" height="100" alt="image" src="https://github.com/user-attachments/assets/a4c5a11b-369a-4729-ab53-886b8d0e1a5b" />
+
+* Marking and unmasking the beginning and end of a comment for a block of text. Works with -- and /*...*/ depending on the current state Ctrl+Num*.
+  
+  <img width="300" height="100" alt="image" src="https://github.com/user-attachments/assets/e053e836-97a7-43d0-a733-878739b39cfd" />
 
 
-
-
-The context menu
-
-  <img width="300" height="60" alt="image" src="https://github.com/user-attachments/assets/9d12f431-2799-485e-8388-c56caaf32720" />
 
 # Options
 Options page at **Tools - Options - SSMSMint**
