@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!--  This is the file that defines the actual layout and type of the commands.
+        It is divided in different sections (e.g. command definition, command
+        placement, ...), with each defining a specific set of properties.
+        See the comment before each section for more details about how to
+        use it. -->
+
+	<!--  The VSCT compiler (the tool that translates this file into the binary
+        format that VisualStudio will consume) has the ability to run a preprocessor
+        on the vsct file; this preprocessor is (usually) the C++ preprocessor, so
+        it is possible to define includes and macros with the same syntax used
+        in C++ files. Using this ability of the compiler here, we include some files
+        defining some of the constants that we will use inside the file. -->
+
+	<!--This is the file that defines the IDs for all the commands exposed by VisualStudio. -->
+	<Extern href="stdidcmd.h" />
+
+	<!--This header contains the command ids for the menus provided by the shell. -->
+	<Extern href="vsshlids.h" />
+
+	<!--The Commands section is where commands, menus, and menu groups are defined.
+      This section uses a Guid to identify the package that provides the command defined inside it. -->
+	<Commands package="guidSSMSMintPackage">
+		<!-- Inside this section we have different sub-sections: one for the menus, another
+    for the menu groups, one for the buttons (the actual commands), one for the combos
+    and the last one for the bitmaps used. Each element is identified by a command id that
+    is a unique pair of guid and numeric identifier; the guid part of the identifier is usually
+    called "command set" and is used to group different command inside a logically related
+    group; your package should define its own command set in order to avoid collisions
+    with command ids defined by other packages. -->
+
+		<!-- In this section you can define new menu groups. A menu group is a container for
+         other menus or buttons (commands); from a visual point of view you can see the
+         group as the part of a menu contained between two lines. The parent of a group
+         must be a menu. -->
+		<Groups>
+			<Group guid="guidMainMenuCmdSet" id="MainMenuGroupId" priority="0x0100">
+				<Parent guid="guidMainMenuCmdSet" id="MainMenuId" />
+			</Group>
+			<Group guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" priority="0x0201">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextMenuId" />
+			</Group>
+			<Group guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" priority="0x0001">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextMenuId" />
+			</Group>
+		</Groups>
+
+		<Menus>
+			<Menu guid="guidMainMenuCmdSet" id="MainMenuId" type="Menu" priority="0x0600">
+				<Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLSADDINS" />
+				<Strings>
+					<ButtonText>SSMSMint</ButtonText>
+				</Strings>
+			</Menu>
+		</Menus>
+
+		<!--Buttons section. -->
+		<!--This section defines the elements the user can interact with, like a menu command or a button
+        or combo box in a toolbar. -->
+		<Buttons>
+			<!--To define a menu group you have to specify its ID, the parent menu and its display priority.
+          The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
+          the CommandFlag node.
+          You can add more than one CommandFlag node e.g.:
+              <CommandFlag>DefaultInvisible</CommandFlag>
+              <CommandFlag>DynamicVisibility</CommandFlag>
+          If you do not want an image next to your command, remove the Icon node /> -->
+			<Button guid="guidCommandsCmdSet" id="ResultsGridSearchToolWindowCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidMainMenuCmdSet" id="MainMenuGroupId" />
+				<Icon guid="guidImages" id="bmpPicSearch" />
+				<Strings>
+					<ButtonText>Find data in Results Grid</ButtonText>
+				</Strings>
+			</Button>
+			
+			<Button guid="guidCommandsCmdSet" id="LocateInObjectExplorerCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
+				<Strings>
+					<ButtonText>Locate in object explorer</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="ScriptSqlObjectCommandId" priority="0x0101" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
+				<Strings>
+					<ButtonText>Script in new window</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" priority="0x0102" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
+				<Strings>
+					<ButtonText>Refresh regions</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CommentToggleCommandId" priority="0x0103" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="SqlEditorContextGroupId" />
+				<Strings>
+					<ButtonText>/*Comment/Uncomment selection*/</ButtonText>
+				</Strings>
+			</Button>
+
+			<Button guid="guidCommandsCmdSet" id="ViewGridCellAsJsonCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>View cell as JSON</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CopyAllHeadersCommandId" priority="0x0101" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>Copy all Headers</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsCmdSet" id="CopySelectedHeadersCommandId" priority="0x0102" type="Button">
+				<Parent guid="guidContextMenuCmdSet" id="ResultsGridContextGroupId" />
+				<Strings>
+					<ButtonText>Copy selected Headers</ButtonText>
+				</Strings>
+			</Button>
+		</Buttons>
+
+		<!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
+		<Bitmaps>
+			<!--  The bitmap id is defined in a way that is a little bit different from the others:
+            the declaration starts with a guid for the bitmap strip, then there is the resource id of the
+            bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
+            inside a button definition. An important aspect of this declaration is that the element id
+            must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
+			<Bitmap guid="guidImages" href="Resources\ResultsGridSearchToolWindowCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+		</Bitmaps>
+	</Commands>
+
+	<!--Определим тут привязку горячих клавиш к командам-->
+	<KeyBindings>
+		<KeyBinding guid="guidCommandsCmdSet" id="ResultsGridSearchToolWindowCommandId" editor="guidVSStd97" key1="f" mod1="Control Alt" />
+		<KeyBinding guid="guidCommandsCmdSet" id="LocateInObjectExplorerCommandId" editor="guidVSStd97" key1="VK_F11" mod1="Shift" />
+		<KeyBinding guid="guidCommandsCmdSet" id="ScriptSqlObjectCommandId" editor="guidVSStd97" key1="VK_F11" mod1="Control" />
+		<KeyBinding guid="guidCommandsCmdSet" id="RefreshRegionsCommandId" editor="guidVSStd97" key1="k" mod1="Control" key2="o" mod2="Control" />
+		<KeyBinding guid="guidCommandsCmdSet" id="CommentToggleCommandId" editor="guidVSStd97" key1="VK_MULTIPLY" mod1="Control" />
+	</KeyBindings>
+
+	<Symbols>
+		<!-- This is the package guid. -->
+		<GuidSymbol name="guidSSMSMintPackage" value="{94de8f9c-19ee-4f89-a394-81b5b17c0e0e}" />
+
+		<!-- Основное меню в VS Main Menu (Верхняя плашка) -->
+		<GuidSymbol name="guidMainMenuCmdSet" value="{085f1123-d43c-4fbd-8476-edc3b5c589a0}">
+			<IDSymbol name="MainMenuId" value="0x1001" />
+			<IDSymbol name="MainMenuGroupId" value="0x1020" />
+		</GuidSymbol>
+
+		<!-- Контекстные меню по ПКМ-->
+		<GuidSymbol name="guidContextMenuCmdSet" value="{33F13AC3-80BB-4ECB-85BC-225435603A5E}">
+			<!-- Контекстное меню на окне редактора SQL кода -->
+			<IDSymbol name="SqlEditorContextMenuId" value="0x0050" />
+			<IDSymbol name="SqlEditorContextGroupId" value="0x1020" />
+
+			<!-- Контекстное меню на Results Grids -->
+			<IDSymbol name="ResultsGridContextMenuId" value="0x0070" />
+			<IDSymbol name="ResultsGridContextGroupId" value="0x1030" />
+		</GuidSymbol>	
+		
+		<!-- Команды -->
+		<GuidSymbol name="guidCommandsCmdSet" value="{E9307D44-1C11-44C0-937E-A66F19EA3B26}">
+			<IDSymbol name="ResultsGridSearchToolWindowCommandId" value="0x100"/>
+			<IDSymbol name="LocateInObjectExplorerCommandId" value="0x101"/>
+			<IDSymbol name="ScriptSqlObjectCommandId" value="0x102"/>
+			<IDSymbol name="RefreshRegionsCommandId" value="0x103"/>
+			<IDSymbol name="ViewGridCellAsJsonCommandId" value="0x104"/>
+			<IDSymbol name="CopyAllHeadersCommandId" value="0x105"/>
+			<IDSymbol name="CopySelectedHeadersCommandId" value="0x106"/>
+			<IDSymbol name="CommentToggleCommandId" value="0x107"/>
+		</GuidSymbol>
+		
+		<!-- Изображения -->
+		<GuidSymbol name="guidImages" value="{8a074ff6-e747-4310-a047-ad09fcb68be8}">
+			<IDSymbol name="bmpPic1" value="1" />
+			<IDSymbol name="bmpPic2" value="2" />
+			<IDSymbol name="bmpPicSearch" value="3" />
+			<IDSymbol name="bmpPicX" value="4" />
+			<IDSymbol name="bmpPicArrows" value="5" />
+			<IDSymbol name="bmpPicStrikethrough" value="6" />
+		</GuidSymbol>
+	</Symbols>
+</CommandTable>

@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="SSMSMint.Core.UI.View.SearchResultItemControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SSMSMint.Core.UI.View" 
+             xmlns:converters="clr-namespace:SSMSMint.Core.UI.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="500"
+             x:Name="root">
+    <UserControl.Resources>
+        <converters:RowIndexToDisplayConverter x:Key="RowIndexToDisplayConverter"/>
+        <converters:GridIndexToDisplayConverter x:Key="GridIndexToDisplayConverter"/>
+    </UserControl.Resources>
+    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Padding="5">
+        <DockPanel>
+            <TextBlock Name="TBCellData"
+                 FontWeight="SemiBold"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Center"
+                 DockPanel.Dock="Left"
+                 Margin="10,0,0,0"/>
+            <StackPanel Orientation="Vertical" 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Right" 
+                        DockPanel.Dock="Right">
+                <TextBlock Text="{Binding GridIndex, ElementName=root, Converter={StaticResource GridIndexToDisplayConverter}}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Right"/>
+                <Rectangle Width="40" 
+                           Height="1" 
+                           HorizontalAlignment="Right"
+                           Fill="#E0E0E0"/>
+                <TextBlock Text="{Binding RowIndex, ElementName=root, Converter={StaticResource RowIndexToDisplayConverter}}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Right"/>
+                <Rectangle Width="40" 
+                           Height="1" 
+                           HorizontalAlignment="Right"
+                           Fill="#E0E0E0"/>
+                <TextBlock Text="{Binding ColHeader, ElementName=root}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Right"/>
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</UserControl>
