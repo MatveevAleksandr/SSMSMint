@@ -66,6 +66,7 @@ You have two options:
   * SSMS 19: C:\Program Files (x86)\Microsoft SQL Server Management Studio 19\Common7\IDE\Extensions
   * SSMS 20: C:\Program Files (x86)\Microsoft SQL Server Management Studio 20\Common7\IDE\Extensions
   * SSMS 21: C:\Program Files\Microsoft SQL Server Management Studio 21\Release\Common7\IDE\Extensions
+  * SSMS 22: C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\Extensions
 
 Restart SSMS after placing the files in the extension directory.
 
