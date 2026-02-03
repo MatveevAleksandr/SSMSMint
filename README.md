@@ -1,4 +1,4 @@
-# SSMSMint | SSMS 19, SSMS 20, SSMS 21 Productivity Addin
+# SSMSMint | SSMS 19, SSMS 20, SSMS 21, SSMS 22 Productivity Addin
 An SSMS plugin that streamlines SQL development with workflow enhancements.
 
 As a SQL developer, I've encountered many of the shortcomings and limitations of SSMS. Looking for an opportunity to practice C#, I decided to create a tool that addresses the issues I personally faced. 
@@ -9,6 +9,7 @@ I’ll be happy if others also find this tool as useful as I do.
 * SSMS 19
 * SSMS 20
 * SSMS 21
+* SSMS 22
 
 # Main Features
 **Hotkeys and other parameters are specified by default.**
